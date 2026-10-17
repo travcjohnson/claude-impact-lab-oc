@@ -27,3 +27,20 @@ challenges/1-referral-intake/packets/*
 !challenges/1-referral-intake/packets/README.md
 *.zip
 **/R[0-9][0-9].pdf
+
+# BE-07: runtime and derived clinical content stays local, never in Git
+# (an ignore rule does not remove anything already committed; see docs/backend-tickets/BE-07-fixture-separation.md)
+runtime/
+results/
+suggestions/
+packets_text/
+ocr/
+renders/
+*.ocr.txt
+*.ocr.json
+*_p-[0-9]*.txt
+*.log
+*.pid
+backend/uploads/
+backend/data/
+/referral-review*/
