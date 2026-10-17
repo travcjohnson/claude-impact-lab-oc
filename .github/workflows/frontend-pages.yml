@@ -1,0 +1,80 @@
+name: Test and deploy intake frontend
+
+on:
+  push:
+    branches: [codex/frontend-live]
+    paths:
+      - 'frontend/**'
+      - 'challenges/1-referral-intake/criteria/admission-criteria.md'
+      - 'challenges/1-referral-intake/criteria/admission-criteria.json'
+      - 'docs/frontend-research-and-handoff.md'
+      - '.github/workflows/frontend-pages.yml'
+  pull_request:
+    branches: [codex/frontend-live, main]
+    paths:
+      - 'frontend/**'
+      - 'challenges/1-referral-intake/criteria/admission-criteria.md'
+      - 'challenges/1-referral-intake/criteria/admission-criteria.json'
+      - 'docs/frontend-research-and-handoff.md'
+      - '.github/workflows/frontend-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: intake-frontend-${{ github.event_name == 'pull_request' && github.ref || 'deployment' }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test frontend review guards
+        run: npm --prefix frontend test
+      - name: Build the explicitly allowed static files
+        run: npm --prefix frontend run build
+      - name: Check deployment contents
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          expected = {
+              '.nojekyll', 'index.html', 'styles.css', 'app.js', 'model.js',
+              'assets/source-sans-3-latin.woff2', 'assets/source-sans-3-LICENSE.txt',
+              'backend-client.js', 'referral-flow.js','referral-flow-model.js','onboarding.js','field-review-model.js', 'field-review.js',
+              'reference/admission-criteria.md', 'reference/frontend-research-and-handoff.md',
+          }
+          root = Path('frontend/dist')
+          actual = {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()}
+          assert actual == expected, f'Unexpected artifact contents: {actual ^ expected}'
+          assert not any(p.is_symlink() for p in root.rglob('*')), 'Symlinks are not permitted'
+          print('Verified static deployment allowlist; no backend or packet artifacts included.')
+          PY
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/codex/frontend-live'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/codex/frontend-live'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy tested frontend
+        id: deployment
+        uses: actions/deploy-pages@v4

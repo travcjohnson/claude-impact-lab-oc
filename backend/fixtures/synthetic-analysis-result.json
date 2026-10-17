@@ -1,0 +1,185 @@
+{
+ "_meta": {
+  "synthetic": true,
+  "note": "Invented example for tests and frontend adapter work. Not extracted from any packet and not a real person.",
+  "contractStatus": "unagreed-draft",
+  "statusMapping": {
+   "findings": {
+    "meets": "Evidence supports",
+    "unmet": "Does not meet",
+    "unknown": "Unknown",
+    "conflict": "Conflicting evidence",
+    "not_applicable": "Not applicable",
+    "clinical_review": "Needs clinical review"
+   },
+   "fields": {
+    "extracted": "Extracted, unreviewed",
+    "missing": "Missing",
+    "redacted": "Redacted",
+    "conflicting": "Conflicting",
+    "unreadable": "Unreadable"
+   }
+  }
+ },
+ "request": {
+  "referralId": "synthetic-demo-0001",
+  "pages": [
+   {
+    "page": 1,
+    "state": "ready",
+    "text": "SYNTHETIC REFERRAL SUMMARY (invented). Patient uses a wheelchair. Transfers: independent per referral form."
+   },
+   {
+    "page": 2,
+    "state": "ready",
+    "text": "SYNTHETIC THERAPY NOTE (invented). Needs assistance for transfers. Swab date: [black box]."
+   },
+   {
+    "page": 3,
+    "state": "failed",
+    "text": ""
+   }
+  ]
+ },
+ "result": {
+  "schemaVersion": "0.1-draft",
+  "formFields": [
+   {
+    "id": "transfer_ability",
+    "value": "independent",
+    "status": "conflicting",
+    "evidence": [
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 1,
+      "quote": "Transfers: independent per referral form",
+      "region": null,
+      "sourceQuality": "readable"
+     }
+    ],
+    "alternatives": [
+     {
+      "value": "needs assistance",
+      "evidence": [
+       {
+        "documentId": "synthetic-demo-0001",
+        "page": 2,
+        "quote": "Needs assistance for transfers",
+        "region": null,
+        "sourceQuality": "readable"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "covid_swab_date",
+    "value": null,
+    "status": "redacted",
+    "evidence": [
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 2,
+      "quote": null,
+      "region": null,
+      "sourceQuality": "unreadable"
+     }
+    ],
+    "alternatives": []
+   },
+   {
+    "id": "self_medication",
+    "value": null,
+    "status": "missing",
+    "evidence": [],
+    "alternatives": []
+   },
+   {
+    "id": "page_3_content",
+    "value": null,
+    "status": "unreadable",
+    "evidence": [
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 3,
+      "quote": null,
+      "region": null,
+      "sourceQuality": "unreadable"
+     }
+    ],
+    "alternatives": []
+   }
+  ],
+  "findings": [
+   {
+    "id": "f1",
+    "ruleId": "MOB-4",
+    "criteriaVersion": "synthetic-v0",
+    "status": "conflict",
+    "fieldIds": [
+     "transfer_ability"
+    ],
+    "evidence": [
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 1,
+      "quote": "Transfers: independent per referral form",
+      "region": null,
+      "sourceQuality": "readable"
+     },
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 2,
+      "quote": "Needs assistance for transfers",
+      "region": null,
+      "sourceQuality": "readable"
+     }
+    ],
+    "rationale": "Synthetic: the form and the therapy note disagree about transfers."
+   },
+   {
+    "id": "f2",
+    "ruleId": "INF-2",
+    "criteriaVersion": "synthetic-v0",
+    "status": "unknown",
+    "fieldIds": [
+     "covid_swab_date"
+    ],
+    "evidence": [
+     {
+      "documentId": "synthetic-demo-0001",
+      "page": 2,
+      "quote": null,
+      "region": null,
+      "sourceQuality": "unreadable"
+     }
+    ],
+    "rationale": "Synthetic: the swab date is redacted, so the 24-hour window cannot be assessed."
+   },
+   {
+    "id": "f3",
+    "ruleId": "COG-1",
+    "criteriaVersion": "synthetic-v0",
+    "status": "unknown",
+    "fieldIds": [
+     "self_medication"
+    ],
+    "evidence": [],
+    "rationale": "Synthetic: the packet does not say. Missing is unknown, not normal."
+   }
+  ],
+  "criteriaCoverage": {
+   "applicable": 6,
+   "evaluated": 3,
+   "unresolved": [
+    "ADL-1",
+    "ADL-2",
+    "INF-1"
+   ]
+  },
+  "authorization": {
+   "status": "unknown",
+   "evidence": []
+  }
+ }
+}

@@ -1,5 +1,7 @@
 # Orange County | Claude Impact Lab
 
+**Team 1 — Referral Intake:** [Start here: team handoff](docs/team-handoff.md) · [Assigned GitHub tickets](https://github.com/phileokairos-pixel/claude-impact-lab-oc---team-1/issues) · [Public frontend demo](https://phileokairos-pixel.github.io/claude-impact-lab-oc---team-1/)
+
 **Saturday, October 17, 2026 · EvoNexus Irvine, 101 Academy Way, Suite 110 · with Illumination Health + Home**
 
 One day. Three real problems from Illumination Health + Home (IHH), a nonprofit that provides
