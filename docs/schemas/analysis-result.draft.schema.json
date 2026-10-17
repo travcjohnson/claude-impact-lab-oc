@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "analysis-result.draft",
+  "title": "Analysis result (UNAGREED DRAFT, BE-03)",
+  "description": "Shape the adapter returns before server validation. The server validator is stricter (quotes must appear on the cited page, rule IDs must exist, coverage counts must be consistent). Passing this schema alone proves nothing about correctness.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "formFields", "findings", "criteriaCoverage", "authorization"],
+  "properties": {
+    "schemaVersion": {"type": "string", "pattern": "^\\d+\\.\\d+(\\.\\d+)?(-[a-z0-9.]+)?$", "maxLength": 32},
+    "formFields": {"type": "array", "maxItems": 200, "items": {"$ref": "#/$defs/field"}},
+    "findings": {"type": "array", "maxItems": 200, "items": {"$ref": "#/$defs/finding"}},
+    "criteriaCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["applicable", "evaluated", "unresolved"],
+      "properties": {
+        "applicable": {"type": "integer", "minimum": 0},
+        "evaluated": {"type": "integer", "minimum": 0},
+        "unresolved": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "authorization": {
+      "type": "object", "additionalProperties": false, "required": ["status"],
+      "properties": {
+        "status": {"enum": ["unknown", "requested", "approved", "denied"]},
+        "evidence": {"$ref": "#/$defs/evidenceList"}
+      }
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object", "additionalProperties": false, "required": ["documentId", "page", "quote", "region", "sourceQuality"],
+      "properties": {
+        "documentId": {"type": "string"},
+        "page": {"type": "integer", "minimum": 1, "description": "1-based original PDF page number"},
+        "quote": {"type": ["string", "null"], "maxLength": 2000},
+        "region": {"description": "Normalized [x0,y0,x1,y1] in 0..1 of the upright page, origin top-left; or null",
+                   "oneOf": [{"type": "null"}, {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number", "minimum": 0, "maximum": 1}}]},
+        "sourceQuality": {"enum": ["readable", "uncertain", "unreadable"]}
+      }
+    },
+    "evidenceList": {"type": "array", "maxItems": 10, "items": {"$ref": "#/$defs/evidence"}},
+    "field": {
+      "type": "object", "additionalProperties": false, "required": ["id", "value", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]{1,64}$"},
+        "value": {"type": ["string", "number", "boolean", "null"], "maxLength": 2000},
+        "status": {"enum": ["extracted", "missing", "redacted", "conflicting", "unreadable"]},
+        "evidence": {"$ref": "#/$defs/evidenceList"},
+        "alternatives": {"type": "array", "maxItems": 10, "items": {
+          "type": "object", "additionalProperties": false, "required": ["value", "evidence"],
+          "properties": {"value": {"type": "string"}, "evidence": {"$ref": "#/$defs/evidenceList"}}}}
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "ruleId", "criteriaVersion", "status", "fieldIds", "evidence", "rationale"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_.-]{1,64}$"},
+        "ruleId": {"type": "string"},
+        "criteriaVersion": {"type": "string", "maxLength": 64},
+        "status": {"enum": ["meets", "unmet", "unknown", "conflict", "not_applicable", "clinical_review"]},
+        "fieldIds": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"$ref": "#/$defs/evidenceList"},
+        "rationale": {"type": "string", "maxLength": 2000}
+      }
+    }
+  }
+}

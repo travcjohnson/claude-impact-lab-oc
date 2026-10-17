@@ -1,0 +1,11 @@
+{
+  "name": "ihh-referral-review-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 4173 --bind 127.0.0.1 --directory ..",
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs",
+    "deploy": "node scripts/deploy.mjs"
+  }
+}

@@ -1,0 +1,4 @@
+# Optional: only for `python3 -m backend.analysis check-model` and a real model-backed adapter.
+# The base service (backend/requirements.txt) does not import this package.
+-r requirements.txt
+anthropic==1.15.0
